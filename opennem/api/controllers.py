@@ -126,7 +126,7 @@ def wem_demand(region="wa"):
         select
             wbs.trading_interval,
             wbs.price,
-            wbs.generation_total
+            wbs.generation_total / 1000
         from wem_balancing_summary wbs
         where wbs.trading_interval > now() - interval '7 days'
         order by 1 desc
@@ -144,7 +144,7 @@ def wem_demand(region="wa"):
         },
         "region": region,
         "type": "demand",
-        "units": "Mw",
+        "units": "GW",
     }
 
     with engine.connect() as c:
@@ -175,7 +175,7 @@ def wem_power_groups():
         select
             wfs.trading_interval,
             wf.fueltech_id,
-            sum(wfs.generated) as gen,
+            sum(wfs.generated) / 1000 as gen,
             max(wfs.trading_interval) as latest_date,
             min(wfs.trading_interval)
         from wem_facility_scada wfs
@@ -209,7 +209,7 @@ def wem_power_groups():
                     "region": "wa",
                     "network": "wem",
                     "type": "power",
-                    "units": "MWh",
+                    "units": "GWh",
                     "history": {
                         "interval": "30m",
                         "start": None,
@@ -245,7 +245,7 @@ def wem_energy_year(year="2020"):
     __query = """
         select
             date_trunc('day', wfs.trading_interval) AS trading_day,
-            max(wfs.eoi_quantity) as energy_output,
+            max(wfs.eoi_quantity) / 1000 as energy_output,
             wf.fueltech_id
         from wem_facility_scada wfs
         left join wem_facility wf on wfs.facility_id = wf.code
@@ -277,7 +277,7 @@ def wem_energy_year(year="2020"):
                     "fuel_tech": current_tech,
                     "region": "wa",
                     "type": "energy",
-                    "units": "MWh",
+                    "units": "GWh",
                     "history": {
                         "interval": "1d",
                         "start": None,
@@ -376,7 +376,7 @@ def wem_energy_all():
     __query = """
         select
             date_trunc('month', wfs.trading_interval) AS trading_day,
-            max(wfs.eoi_quantity) as energy_output,
+            max(wfs.eoi_quantity) / 1000 as energy_output,
             wf.fueltech_id
         from wem_facility_scada wfs
         left join wem_facility wf on wfs.facility_id = wf.code
@@ -405,7 +405,7 @@ def wem_energy_all():
                     "fuel_tech": current_tech,
                     "region": "wa",
                     "type": "energy",
-                    "units": "MWh",
+                    "units": "GWh",
                     "history": {
                         "interval": "1M",
                         "start": None,
